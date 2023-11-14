@@ -6,6 +6,17 @@ local gears = require("gears")
 
 local M = {}
 
+----------
+-- PATH --
+----------
+
+local paths = {}
+for path in os.getenv("PATH"):gmatch("[^:]+") do
+    paths[#paths+1] = path .. "/"
+end
+
+function M.get_paths() return paths end
+
 --------------
 -- ロケール --
 --------------
