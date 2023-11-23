@@ -4,7 +4,7 @@
 
 local lgi         = require("lgi")
 local gears       = require("gears")
-local environment = require("utils.environment")
+local environment = require("utilities.environment")
 
 local M = {}
 
@@ -35,7 +35,7 @@ local function generate_table(iterator)
             -- グループが存在しないならデフォルトにフォールバック
             if not current_group then
                 current_group = {}
-                groups.default = current_group
+        groups.default = current_group
                 key_locales = {}
             end
 
@@ -65,7 +65,7 @@ function M.parse(path)
     return result
 end
 
-local function parse_async_main(path, callback)
+function M.async_parse(path)
     local file = lgi.Gio.File.new_for_path(path)
     local size = file:async_query_info("standard::size", "NONE"):get_size()
 
@@ -73,11 +73,7 @@ local function parse_async_main(path, callback)
     local result = generate_table((stream:async_read_bytes(size).data):gmatch("[^\n]*"))
     stream:async_close()
 
-    callback(result)
-end
-
-function M.parse_async(path, callback)
-    lgi.Gio.Async.start(parse_async_main)(path, callback)
+    return result
 end
 
 return M

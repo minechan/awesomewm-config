@@ -2,6 +2,7 @@
 -- 環境変数 --
 --------------
 
+local lgi   = require("lgi")
 local gears = require("gears")
 
 local M = {}
@@ -16,6 +17,21 @@ for path in os.getenv("PATH"):gmatch("[^:]+") do
 end
 
 function M.get_paths() return paths end
+
+----------------------------------
+-- 実行ファイルの絶対パスを返す --
+----------------------------------
+
+function M.find_full_path(name)
+    if name:sub(1, 1) == "/" then return name end
+
+    for _, env_path in ipairs(paths) do
+        local path = env_path .. name
+        if lgi.Gio.File.new_for_path(path):query_info("standard::name", "NONE") then
+            return path
+        end
+    end
+end
 
 --------------
 -- ロケール --

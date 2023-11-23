@@ -16,9 +16,9 @@ function print_table(t, indent)
 end
 
 options = {
+    -- アイコンテーマ
+    icon_theme  = "Colloid-teal-nord-light",
+    icon_scale  = 2,
     -- 固定されたアプリケーション
     pinned_apps = { "firefox", "kitty" }
 }
-
--- アプリケーション
-require("applications")
