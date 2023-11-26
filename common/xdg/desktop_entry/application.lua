@@ -4,7 +4,8 @@
 
 local gears = require("gears")
 
-local M = {}
+local M     = {}
+local super = require("common.xdg.desktop_entry.base")
 
 ----------------
 -- プロパティ --
@@ -27,7 +28,7 @@ end
 ------------------------
 
 local function new(name, icon, categories, hidden, exec, terminal, startup_wm_class, actions)
-    local object = require("desktop_entry.base")(name, icon, categories, hidden)
+    local object = super(name, icon, categories, hidden)
     gears.table.crush(object, M, true)
 
     object:set_exec            (exec)

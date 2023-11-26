@@ -3,9 +3,9 @@
 --------------
 
 local lgi         = require("lgi")
-local gears       = require("gears")
-local keyfile     = require("utilities.keyfile")
-local environment = require("utilities.environment")
+local keyfile     = require("common.keyfile")
+local beautiful   = require("beautiful")
+local environment = require("common.environment")
 
 local M = {}
 
@@ -13,6 +13,7 @@ local themes          = {}
 local icon_cache      = {}
 local find_icon_queue = {}
 local find_icon_ready = false
+local icon_theme, scale_factor
 
 --------------------
 -- アイコンの検索 --
@@ -41,19 +42,15 @@ local function find_icon_main(name, size, context, callback)
                 temp_size = size
                 break
             else
-                -- local is_right = size < sub_dir.min_size
-                -- local dist = is_right and (size - sub_dir.min_size) or (sub_dir.max_size - size)
                 local delta = size - (size < sub_dir.min_size and sub_dir.min_size or sub_dir.max_size)
                 if temp_size then
                     local temp_dist = math.abs(size - temp_size)
                     if math.abs(delta) < temp_dist then
                         path      = sub_dir.path
-                        -- temp_size = is_right and sub_dir.min_size or sub_dir.max_size
                         temp_size = size - delta
                     end
                 else
                     path      = sub_dir.path
-                    -- temp_size = is_right and sub_dir.min_size or sub_dir.max_size
                     temp_size = size - delta
                 end
             end
@@ -65,7 +62,7 @@ local function find_icon_main(name, size, context, callback)
         local found_sub_dirs = {}
 
         for _, theme in ipairs(themes) do
-            for _, scale in ipairs { options.icon_scale, options.icon_scale and 1 } do
+            for _, scale in ipairs { scale_factor, scale_factor and 1 } do
                 if not theme[context] or not theme[context][scale] then goto continue end
                 for _, sub_dir in ipairs(theme[context][scale]) do
                     local found = false
@@ -178,6 +175,14 @@ local function parse_icon_theme(name)
     end
 end
 
-lgi.Gio.Async.start(parse_icon_theme)(options.icon_theme)
+------------
+-- 初期化 --
+------------
+
+function M.initialize()
+    icon_theme   = beautiful.desktop.icon_theme
+    scale_factor = beautiful.desktop.icon_scale
+    lgi.Gio.Async.start(parse_icon_theme)(icon_theme)
+end
 
 return M

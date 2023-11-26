@@ -2,14 +2,14 @@
 -- デスクトップエントリ --
 --------------------------
 
-local lgi       = require("lgi")
-local gears     = require("gears")
-local utilities = require("utilities")
+local lgi         = require("lgi")
+local keyfile     = require("common.keyfile")
+local environment = require("common.environment")
 
 local M = {
-    base        = require("desktop_entry.base"),
-    link        = require("desktop_entry.link"),
-    application = require("desktop_entry.application")
+    base        = require("common.xdg.desktop_entry.base"),
+    link        = require("common.xdg.desktop_entry.link"),
+    application = require("common.xdg.desktop_entry.application")
 }
 
 local entries = {}
@@ -18,22 +18,10 @@ local entries = {}
 -- エントリのパース --
 ----------------------
 
--- 実行ファイルのフルパスを返す
-local function get_full_path_executable(name)
-    if name:sub(1, 1) == "/" then return name end
-
-    for _, env_path in ipairs(utilities.environment.get_paths()) do
-        local path = env_path .. name
-        if lgi.Gio.File.new_for_path(path):query_info("standard::name", "NONE") then
-            return path
-        end
-    end
-end
-
 -- オブジェクトの生成
 local function create_class(path, async)
     local prefix = async and "async_" or ""
-    local groups = utilities.keyfile[prefix .. "parse"](path)
+    local groups = keyfile[prefix .. "parse"](path)
 
     -- ディレクトリなら飛ばす
     if groups["Desktop Entry"].Type   == "Directory" then return end
@@ -41,7 +29,7 @@ local function create_class(path, async)
     if groups["Desktop Entry"].Hidden == "true"      then return end
     -- TryExec
     if groups["Desktop Entry"].TryExec then
-        local file = lgi.Gio.File.new_for_path(utilities.environment.find_full_path(groups["Desktop Entry"].TryExec))
+        local file = lgi.Gio.File.new_for_path(environment.find_full_path(groups["Desktop Entry"].TryExec))
         local info = file[prefix .. "query_info"](file, "standard::content-type", "NONE")
         -- ファイルが存在しないなら飛ばす
         if not info then return end
@@ -103,7 +91,7 @@ function M.async_parse(path) return create_class(path, true) end
 -- エントリの列挙 --
 --------------------
 
-for _, data_dir in ipairs(utilities.environment.get_xdg_data_dirs()) do
+for _, data_dir in ipairs(environment.get_xdg_data_dirs()) do
     local base = data_dir .. "applications/"
     local enumerator = lgi.Gio.File.new_for_path(base):enumerate_children("standard::name", "NONE")
     if enumerator then

@@ -4,7 +4,7 @@
 
 local lgi         = require("lgi")
 local gears       = require("gears")
-local environment = require("utilities.environment")
+local environment = require("common.environment")
 
 local M = {}
 
@@ -55,13 +55,11 @@ local function generate_table(iterator)
 end
 
 function M.parse(path)
-    local file = lgi.Gio.File.new_for_path(path)
-    local size = file:query_info("standard::size", "NONE"):get_size()
+    local file = io.open(path, "r")
+    assert(file, "Couldn't read a file.")
 
-    local stream = file:read()
-    local result = generate_table((stream:read_bytes(size).data):gmatch("[^\n]*"))
-    stream:close()
-
+    local result = generate_table(file:lines())
+    file:close()
     return result
 end
 

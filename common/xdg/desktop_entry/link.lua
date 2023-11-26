@@ -5,7 +5,7 @@
 local gears = require("gears")
 
 local M     = {}
-local super = require("desktop_entry.base")
+local super = require("common.xdg.desktop_entry.base")
 
 ----------------
 -- プロパティ --
